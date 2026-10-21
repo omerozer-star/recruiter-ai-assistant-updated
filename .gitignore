@@ -1,0 +1,29 @@
+node_modules/
+.next/
+.next-*/
+out/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Local databases and generated files
+*.db
+*.db-journal
+*.tsbuildinfo
+public/assets/jobs/*
+
+# Browser sessions, cookies, QR codes and account identities
+.browser/
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Local tooling and temporary files
+.claude/
+.pnpm-store/
+tmp/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db

@@ -1,0 +1,29 @@
+{
+  "name": "recruiter-ai-assistant",
+  "version": "0.1.0",
+  "description": "A privacy-safe AI-assisted recruitment workflow built with Next.js and Prisma.",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 127.0.0.1",
+    "build": "next build",
+    "start": "next start -H 127.0.0.1",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "@prisma/client": "^6.19.3",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.2",
+    "typescript": "5.9.3"
+  }
+}

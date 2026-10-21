@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id             String   @id @default(cuid())
+  title          String
+  company        String   @default("")
+  sourceUrl      String   @default("") // job posting / CV submission link — appended to every post
+  description    String
+  requirements   String   @default("")
+  advantages     String   @default("")
+  location       String   @default("")
+  employmentType String   @default("")
+  seniority      String   @default("")
+  discreet       Boolean  @default(false) // discreet job: published from the separate discreet FB profile, posts never name company/location
+  status         String   @default("draft") // draft | approved | published | receiving
+  analysis       String? // JSON: JobAnalysis (+source: claude|demo)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  recommendations Recommendation[]
+  posts           Post[]
+  publications    Publication[]
+}
+
+model Community {
+  id            String   @id @default(cuid())
+  name          String
+  platform      String // facebook | whatsapp | linkedin
+  url           String   @default("")
+  domain        String
+  tags          String   @default("[]") // JSON string[]
+  seniority     String   @default("all") // junior | mid | senior | all
+  region        String   @default("ישראל")
+  language      String   @default("עברית")
+  activityLevel Int      @default(3) // 1-5
+  memberCount   Int      @default(0)
+  contactName   String   @default("")
+  notes         String   @default("")
+  successScore  Float    @default(0) // 0-1, learning system
+  membership    String   @default("none") // member | none | pending (per the owning fbProfile)
+  fbProfile     String   @default("main") // main | discreet — which configured FB account this group belongs to
+  joinRequestedAt DateTime? // when an automated join request was submitted (membership="pending")
+  excluded      Boolean  @default(false) // never recommend/publish (e.g. workplace groups)
+  pinned        Boolean  @default(false) // always include in recommendations for every job
+  canPost       Boolean  @default(true) // false = announcement-only group (only admins may send)
+  inviteUrl     String   @default("") // original WhatsApp invite URL (url becomes wa:<group-id> after joining)
+  discoverySource String @default("") // human-readable provenance for discovered groups
+  createdAt     DateTime @default(now())
+
+  recommendations Recommendation[]
+  publications    Publication[]
+}
+
+model CommunitySource {
+  id          String   @id
+  name        String
+  url         String
+  kind        String   @default("html") // google_sheet | html
+  approved    Boolean  @default(false)
+  userProvided Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  jobId       String
+  communityId String
+  score       Int
+  reasons     String   @default("[]") // JSON string[]
+  status      String   @default("pending") // pending | approved | published
+  autoPublish Boolean  @default(false) // publish automatically once the group join is approved
+  createdAt   DateTime @default(now())
+
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, communityId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  jobId     String
+  channel   String // linkedin | facebook | whatsapp
+  content   String
+  imagePath String   @default("") // optional local/public asset attached to automated social publishing
+  createdAt DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
+
+model Publication {
+  id                 String   @id @default(cuid())
+  jobId              String
+  communityId        String?
+  channel            String
+  publishedAt        DateTime @default(now())
+  candidatesTotal    Int      @default(0)
+  candidatesRelevant Int      @default(0)
+  hired              Int      @default(0)
+  notes              String   @default("")
+
+  job       Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  community Community? @relation(fields: [communityId], references: [id], onDelete: SetNull)
+}
